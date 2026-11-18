@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Domustec frente a rivales</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna. Dos selectores arriba; cada indicador es un par de barras en la misma escala; tabla completa al final. Paleta del informe principal. */
+:root{
+  --paper:#fbfbfa;--paper-2:#f2f3f2;--ink:#14181c;--ink-soft:#5a636b;--ink-faint:#737b82;
+  --line:#e6e7e5;--track:#eceeec;--card:#ffffff;
+  --dom:#2b6cb0;--comp:#c08a1e;--sel:#e8eff7;
+  --good:#0f6e6a;--good-soft:#e1efed;--bad:#a23b23;--bad-soft:#f3e0da;--neutral-soft:#eceeec;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#111416;--paper-2:#181c1f;--ink:#e7eae9;--ink-soft:#a3abb1;--ink-faint:#8b949b;
+  --line:#262b2f;--track:#1e2326;--card:#161a1d;
+  --dom:#5b8fd0;--comp:#b8892c;--sel:#1b2733;
+  --good:#3fb7ad;--good-soft:#16302e;--bad:#e27d65;--bad-soft:#3a1f19;--neutral-soft:#23292c;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111416;--paper-2:#181c1f;--ink:#e7eae9;--ink-soft:#a3abb1;--ink-faint:#8b949b;
+  --line:#262b2f;--track:#1e2326;--card:#161a1d;
+  --dom:#5b8fd0;--comp:#b8892c;--sel:#1b2733;
+  --good:#3fb7ad;--good-soft:#16302e;--bad:#e27d65;--bad-soft:#3a1f19;--neutral-soft:#23292c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:48px 56px;display:grid;gap:28px}
+.wrap>*{min-width:0}
+h1,h2{margin:0;text-wrap:balance;letter-spacing:-.022em}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,40px);font-weight:600;line-height:1.1;margin-top:12px}
+.lede{color:var(--ink-soft);max-width:64ch;margin-top:12px;font-size:16px}
+
+.controls{display:grid;gap:14px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.ctl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px 12px;align-items:center}
+.ctl>span{font-size:13px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;font:inherit;font-size:13.5px;font-weight:500;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;min-height:36px}
+.chip:hover{border-color:var(--ink-faint)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip:focus-visible{outline:2px solid var(--dom);outline-offset:2px}
+
+.answer{display:grid;gap:8px}
+.answer .big{font-size:clamp(20px,3vw,25px);font-weight:600;line-height:1.28;letter-spacing:-.018em;max-width:40ch;text-wrap:balance}
+.ctx{font-size:13.5px;color:var(--ink-soft);max-width:72ch}
+.ctx b{color:var(--ink);font-weight:600}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--ink-soft)}
+.legend span{display:flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.row{display:grid;grid-template-columns:190px minmax(0,1fr) 112px;gap:6px 22px;padding-block:18px;border-top:1px solid var(--line)}
+.m-name{font-size:15px;font-weight:600;line-height:1.3}
+.m-dir{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.bars{display:grid;gap:4px;min-width:0}
+.bl{display:grid;grid-template-columns:minmax(0,1fr) 62px;gap:8px;align-items:center}
+.tr{height:14px;background:var(--track);border-radius:4px;min-width:0}
+.fill{display:block;height:100%;border-radius:4px;min-width:3px;transition:width .2s ease}
+.val{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.gapcell{justify-self:start;display:grid;gap:3px;align-content:start}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;justify-self:start}
+.pill.good{color:var(--good);background:var(--good-soft)}
+.pill.bad{color:var(--bad);background:var(--bad-soft)}
+.pill.neutral{color:var(--ink-soft);background:var(--neutral-soft)}
+.gapn{font-family:var(--mono);font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.row.sub{border-top-style:dashed}
+.row.sub .m-name{font-size:14px;font-weight:500;padding-left:12px}
+.row.sub .m-dir{padding-left:12px}
+.mk{display:inline-block;width:14px;margin-left:5px;text-align:center;font-size:10px;color:var(--ink-faint)}
+.mk.up{color:var(--good)}
+.mk.down{color:var(--bad)}
+.tkey{font-size:13px;color:var(--ink-soft)}
+.tsub{padding-left:12px;color:var(--ink-soft)}
+.note{grid-column:2/4;font-size:13px;color:var(--ink-soft);max-width:66ch}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+
+h2{font-size:19px;font-weight:600}
+.sec{display:grid;gap:12px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:13px}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+thead th{font-weight:600;font-size:12px;vertical-align:bottom;white-space:normal;line-height:1.25}
+tbody th{text-align:left;font-weight:500}
+td{font-family:var(--mono)}
+.on{background:var(--sel)}
+.dcol{font-weight:600}
+
+details{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+summary{cursor:pointer;padding:14px 0;font-weight:600}
+summary:focus-visible{outline:2px solid var(--dom);outline-offset:3px;border-radius:4px}
+.ml{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:9px;font-size:13.5px;color:var(--ink-soft);max-width:72ch}
+.ml b{color:var(--ink);font-weight:600}
+footer{font-size:12px;color:var(--ink-faint);max-width:80ch}
+
+@media (max-width:680px){
+  .wrap{padding-block:32px 40px}
+  .ctl{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:minmax(0,1fr) auto}
+  .bars{grid-column:1/-1;grid-row:2}
+  .gapcell{grid-column:2;grid-row:1;justify-items:end}
+  .pill{justify-self:end}
+  .note{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Comparación · Sector y competidores</div>
+    <h1>Domustec frente al sector y a sus rivales</h1>
+    <p class="lede">En margen EBITDA, Domustec queda por debajo de la mediana del sector y, entre las rivales analizadas, solo supera a Install-Scaler.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl"><span id="l-y">Año de Domustec</span><div class="chips" role="group" aria-labelledby="l-y" id="years"></div></div>
+    <div class="ctl"><span id="l-c">Comparar con</span><div class="chips" role="group" aria-labelledby="l-c" id="comps"></div></div>
+  </div>
+
+  <section class="answer" aria-live="polite">
+    <p class="big" id="big"></p>
+    <p class="ctx" id="ctx"></p>
+  </section>
+
+  <section>
+    <div class="legend" id="legend"></div>
+    <div id="rows" style="margin-top:12px"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Todas las referencias a la vez</h2>
+    <p class="tkey">Posición de Domustec frente a cada referencia: <span class="mk up">▲</span> mejor · <span class="mk down">▼</span> peor · <span class="mk">=</span> similar.</p>
+    <div class="tw" tabindex="0" role="region" aria-label="Tabla comparativa"><table id="tbl"></table></div>
+  </section>
+
+  <section>
+    <details>
+      <summary>Cómo se ha calculado</summary>
+      <ul class="ml">
+        <li><b>Grupo Instavi.</b> Se usa solo Instavi Service, la sociedad del grupo más cercana a Domustec en tamaño, con cuentas completas de dos años. No se suman otras sociedades porque hay operaciones entre ellas y no disponemos de cuentas consolidadas.</li>
+        <li><b>Media de rivales.</b> Media simple de Install-Scaler, Instavi Service y Rapitecnic, sin ponderar por ventas. Con tres empresas es una referencia orientativa y mezcla modelos de negocio muy distintos.</li>
+        <li><b>Años.</b> Se usa el año disponible de cada empresa: Install-Scaler 2024; Rapitecnic 2025; Instavi Service 2024 o 2025, según el año elegido para Domustec. El sector es siempre RSE 2024.</li>
+        <li><b>Sector.</b> Banco de España, RSE, CNAE F432, sociedades con menos de 2 M€ de facturación, mediana. Incluye electricistas, no solo climatización. Instavi Service y Rapitecnic superan ese tamaño.</li>
+        <li><b>Margen bruto.</b> Cifra de negocios menos aprovisionamientos, más variación de existencias, sobre la cifra de negocios. Excluye el personal de obra. Si «Otros servicios» de Domustec fuera subcontratación, bajaría a ≈41,6% en 2025 y ≈35,7% en 2024. Los ratios del RSE utilizados no incluyen este dato.</li>
+        <li><b>Margen EBITDA.</b> Resultado de explotación más amortización, sobre la cifra de negocios. Domustec e Install-Scaler no registran amortización, así que su EBITDA coincide con el resultado de explotación.</li>
+        <li><b>Margen neto.</b> Resultado del ejercicio sobre la cifra de negocios. El RSE usa el resultado antes de intereses e impuestos, por lo que la mediana no es del todo equivalente.</li>
+        <li><b>Mejor o peor.</b> En márgenes, más alto es mejor; en costes y personal, más bajo es mejor porque deja más margen. Una cifra se considera similar si la diferencia es inferior a 0,05 puntos en márgenes y a 0,5 puntos en el resto. En costes y personal la lectura depende del modelo de negocio: un menor peso de personal puede compensarse con más subcontratación.</li>
+        <li><b>Costes externos.</b> Aprovisionamientos, menos variación de existencias, más otros gastos de explotación, sobre la cifra de negocios. Frente al sector se muestra el total, porque el RSE no aporta esta división; frente a las rivales, aprovisionamientos y otros gastos por separado. Las sumas pueden variar una décima por redondeo, y la subcontratación puede figurar en cualquiera de las dos según cómo contabilice cada empresa.</li>
+        <li><b>Instavi Service y su grupo.</b> Las ventas al grupo fueron el 2,6% de la cifra de negocios en 2025 y el 16% en 2024. Los servicios recibidos del grupo equivalen a ≈24% de sus aprovisionamientos y otros gastos en 2025 y a ≈93% en 2024, por lo que su estructura de costes de 2024 depende mucho del grupo.</li>
+        <li><b>Empleados.</b> Media anual según la memoria (Instavi Service) o estimada a partir de los ratios de eInforma. No se indica para Domustec porque la plantilla aún no está conciliada con la cuenta de resultados.</li>
+        <li><b>Crecimiento.</b> No se compara porque solo hay dos años de cuentas para Instavi Service.</li>
+      </ul>
+    </details>
+    <footer style="margin-top:14px">Fuentes: cuentas anuales de Domustec 2024 y 2025; cuentas depositadas en el Registro Mercantil, obtenidas a través de eInforma; Banco de España, base RSE, Central de Balances / Registros de España. Uso interno, prohibida su redistribución.</footer>
+  </section>
+</div>
+
+<script>
+const D={"dom": {"2024": {"rev": 803982.88, "ebitda": 0.7617413445420629, "neto": 0.58654109649698, "ext": 75.95089089459218, "apr": 60.84694863154301, "mb": 39.15305136845699, "otr": 15.103942263049182, "pers": 23.287367760865756}, "2025": {"rev": 872255.35, "ebitda": 1.2972199024058724, "neto": 1.02869532413874, "ext": 67.24724932899522, "apr": 29.774856640317545, "mb": 70.22514335968245, "otr": 37.472392688677694, "pers": 31.455530768598894}}, "ins": {"2024": {"rev": 1752228.36, "ebitda": 0.19569652439594118, "neto": 0.11919222674834459, "ext": 86.85280039640494, "apr": 75.36256461458025, "mb": 24.637435385419746, "otr": 11.490235781824694, "pers": 12.951503079199107}}, "ser": {"2025": {"rev": 3271195.84, "ebitda": 3.714179032460497, "neto": 1.021792996655315, "ext": 37.35170041057524, "apr": 15.603178622286338, "mb": 84.39682137771368, "otr": 21.748521788288897, "pers": 59.09503693915189}, "2024": {"rev": 3282493.26, "ebitda": 3.1699982835608327, "neto": 1.016839254682887, "ext": 41.57692954409905, "apr": 25.268927437188403, "mb": 74.7310725628116, "otr": 16.308002106910646, "pers": 55.27087449373773}}, "rap": {"2025": {"rev": 3589175.4, "ebitda": 3.8287083991492867, "neto": 0.8783964695623401, "ext": 43.8224484654609, "apr": 33.76585440767258, "mb": 66.23414559232742, "otr": 10.056594057788315, "pers": 52.675013876446386}}};
+const SECTOR={ebitda:5.82,neto:4.27,ext:56.01,pers:35.86};
+const Q={ebitda:[1.75,12.93],neto:[.79,11.15],ext:[44.1,67.78],pers:[24.59,48.05]};
+const NAMES={sector:'Sector',media:'Media de rivales',ins:'Install-Scaler',ser:'Instavi Service',rap:'Rapitecnic'};
+const INFO={
+ ins:{emp:{2024:'≈6'},txt:'Instalación y venta de calderas y aire acondicionado. Muy centrada en equipos: los aprovisionamientos pesan el 75% de sus ingresos.'},
+ ser:{emp:{2024:'46,7',2025:'52,7'},txt:'Instalaciones eléctricas y mantenimiento, con climatización entre sus actividades. Pertenece al grupo Instavi y su negocio se apoya sobre todo en personal propio.'},
+ rap:{emp:{2025:'≈37'},txt:'Reparación de electrodomésticos, climatización y calderas. Solo coincide en parte con Domustec y sus cuentas no separan las actividades.'}
+};
+const MEDIA=['ins','ser','rap'];
+const M=[
+ {k:'apr',sc:'ext',t:'Aprovisionamientos / ingresos',dec:1,dir:-1,h:'Mejor cuanto más bajo',n:'Equipos, materiales y trabajos de terceros.'},
+ {k:'mb',t:'Margen bruto',dec:1,dir:1,h:'Mejor cuanto más alto',n:'Lo que queda tras los aprovisionamientos. Depende de cómo se contabilice la subcontratación.'},
+ {k:'pers',t:'Gastos de personal / ingresos',dec:1,dir:-1,h:'Mejor cuanto más bajo',n:'Depende del modelo. En Domustec falta confirmar si hay autónomos en «Otros servicios».'},
+ {k:'otr',sc:'ext',t:'Otros gastos de explotación / ingresos',dec:1,dir:-1,h:'Mejor cuanto más bajo',n:y=>`Servicios externos y gastos generales. En Domustec, «Otros servicios» pesa el ${es(OS[y],1)}%.`},
+ {k:'ext',t:'Costes externos (total)',dec:1,dir:-1,h:'Mejor cuanto más bajo',n:'Aprovisionamientos más otros gastos.'},
+ {k:'ebitda',t:'Margen EBITDA',dec:2,dir:1,h:'Mejor cuanto más alto',n:'Lo que queda antes de amortizaciones, intereses e impuestos. Es el indicador más fiable.'},
+ {k:'neto',t:'Margen neto',dec:2,dir:1,h:'Mejor cuanto más alto',n:'Lo que queda al final. Domustec no registra amortizaciones, lo que favorece su cifra.'}
+];
+const OS={2024:27573.83/803982.88*100,2025:249746.81/872255.35*100};
+const st={y:'2025',c:'media'};
+const es=(x,d)=>x.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const yr=(e,y)=>D[e][y]?y:Object.keys(D[e])[0];
+function val(c,k,y){
+  if(k==='ext'&&c!=='sector')return null;
+  if(c==='sector')return k in SECTOR?SECTOR[k]:null;
+  if(c==='media')return MEDIA.reduce((s,e)=>s+D[e][yr(e,y)][k],0)/MEDIA.length;
+  return D[c][yr(c,y)][k];
+}
+const compLabel=(c,y)=>c==='sector'?'Mediana del sector (2024)':c==='media'?'Media de rivales':NAMES[c]+' '+yr(c,y);
+const ALL={};for(const m of M){if(m.sc)continue;let v=[SECTOR[m.k]||0];for(const e in D)for(const y in D[e])v.push(D[e][y][m.k]);ALL[m.k]=Math.max(...v)}
+
+const M2=v=>es(v/1e6,2)+'\u00a0M€';
+const REVMAX=Math.max(...Object.values(D).flatMap(e=>Object.values(e).map(r=>r.rev)));
+function range(k,y,f){
+  const v=MEDIA.map(e=>({n:NAMES[e],x:D[e][yr(e,y)][k]})).sort((a,b)=>a.x-b.x),lo=v[0],hi=v[v.length-1];
+  return `<br>Rivales: de ${f(lo.x)} (${lo.n}) a ${f(hi.x)} (${hi.n}).`;
+}
+function revRow(c,y,dom){
+  const a=dom.rev,b=val(c,'rev',y),nd=b===null;
+  const g=nd?0:+(a/1e6).toFixed(2)-+(b/1e6).toFixed(2);
+  const lab=nd?'&lt;2 M€':g>0?'Mayor':'Menor';
+  const note=c==='sector'?'Sector de referencia: menos de 2 M€ de facturación.':c==='media'?'Indica el tamaño; no se valora como mejor o peor.'+range('rev',y,M2):'Indica el tamaño; no se valora como mejor o peor.';
+  return `<div class="row"><div><div class="m-name">Ingresos</div><div class="m-dir">Cifra de negocios anual</div></div>
+   <div class="bars" role="img" aria-label="Ingresos: Domustec ${M2(a)}, ${compLabel(c,y)} ${nd?'menos de 2 M€':M2(b)}">
+    <div class="bl" title="Domustec ${y}: ${es(a,0)} €"><div class="tr"><span class="fill" style="width:${(a/REVMAX*100).toFixed(2)}%;background:var(--dom)"></span></div><span class="val">${M2(a)}</span></div>
+    ${nd?'<div class="bl"><div class="tr"></div><span class="val">&lt;2\u00a0M€</span></div>':`<div class="bl" title="${compLabel(c,y)}: ${es(b,0)} €"><div class="tr"><span class="fill" style="width:${(b/REVMAX*100).toFixed(2)}%;background:var(--comp)"></span></div><span class="val">${M2(b)}</span></div>`}
+   </div>
+   <div class="gapcell">${nd?'':`<span class="pill neutral">${lab}</span><span class="gapn">${g>=0?'+':'−'}${es(Math.abs(g),2)} M€</span>`}</div>
+   <p class="note">${note}</p></div>`;
+}
+function mark(m,x,y){
+  const a=+D.dom[y][m.k].toFixed(m.dec),v=val(x,m.k,y);
+  if(v===null)return '<span class="mk"></span>';
+  const g=a-+v.toFixed(m.dec),tol=m.dec===2?.05:.5;
+  if(Math.abs(g)<tol)return '<span class="mk" title="Domustec similar" aria-label="Domustec similar">=</span>';
+  return g*m.dir>0?'<span class="mk up" title="Domustec mejor" aria-label="Domustec mejor">▲</span>':'<span class="mk down" title="Domustec peor" aria-label="Domustec peor">▼</span>';
+}
+function chips(){
+  document.getElementById('years').innerHTML=['2025','2024'].map(y=>`<button type="button" class="chip" id="y${y}" data-y="${y}" aria-pressed="${st.y===y}">${y}</button>`).join('');
+  document.getElementById('comps').innerHTML=Object.keys(NAMES).map(c=>`<button type="button" class="chip" id="c-${c}" data-c="${c}" aria-pressed="${st.c===c}">${NAMES[c]}</button>`).join('');
+}
+function render(){
+  chips();
+  const y=st.y,c=st.c,dom=D.dom[y];
+  const cv=val(c,'ebitda',y),dv=dom.ebitda,gapEur=Math.round((cv-dv)/100*dom.rev/100)*100;
+  const who=c==='sector'?'la instaladora típica':c==='media'?'la media de rivales':NAMES[c];
+  const head=`De cada 100 € facturados, Domustec retiene ${es(dv,2)}\u00a0€ de EBITDA en ${y}; ${who}, ${es(cv,2)}\u00a0€.`;
+  const tail=gapEur>0?` Igualarla supondría ≈${es(gapEur,0)}\u00a0€ más al año.`:` Domustec está ${es(+dv.toFixed(2)-+cv.toFixed(2),2)} puntos por encima.`;
+  document.getElementById('big').textContent=head+tail;
+  let ctx='';
+  if(c==='sector')ctx=`<b>Referencia:</b> ≈19.300 sociedades del CNAE F432 con menos de 2 M€ de facturación, ejercicio 2024.`;
+  else if(c==='media')ctx=`<b>Referencia:</b> ${MEDIA.map(e=>NAMES[e]+' '+yr(e,y)).join(', ')}.`;
+  else{const yy=yr(c,y),emp=INFO[c].emp[yy];ctx=`<b>Datos de ${yy}:</b> ${es(D[c][yy].rev/1e6,2)} M€ de ingresos y ${emp} empleados. ${INFO[c].txt}`;}
+  if(y==='2024')ctx+=` El resultado de Domustec en 2024 incluye 51.254 € de variación de existencias; sin ella sería negativo.`;
+  else if(c==='ins')ctx+=` Compara 2025 de Domustec con 2024 de Install-Scaler.`;
+  document.getElementById('ctx').innerHTML=ctx;
+  document.getElementById('legend').innerHTML=`<span><i class="sw" style="background:var(--dom)"></i>Domustec ${y}</span><span><i class="sw" style="background:var(--comp)"></i>${compLabel(c,y)}</span>`;
+  document.getElementById('rows').innerHTML=(c==='sector'?'':revRow(c,y,dom))+(c==='sector'?['ext','pers','ebitda','neto'].map(k=>M.find(m=>m.k===k)):M.filter(m=>m.k!=='ext')).map(m=>{
+    const a=dom[m.k],b=val(c,m.k,y),mx=ALL[m.sc||m.k],nd=b===null,g=nd?0:+a.toFixed(m.dec)-+b.toFixed(m.dec),tol=m.dec===2?.05:.5;
+    let cls='neutral',lab;
+    if(nd)lab='Sin dato';
+    else if(Math.abs(g)<tol)lab='Similar';
+    else{const ok=g*m.dir>0;cls=ok?'good':'bad';lab=ok?'▲ Mejor':'▼ Peor'}
+    const note=typeof m.n==='function'?m.n(y):m.n;
+    const q=c==='media'?range(m.k,y,x=>es(x,m.dec)+'%'):c==='sector'&&!nd?`<br>50% central del sector: de ${es(Q[m.k][0],m.dec)}% a ${es(Q[m.k][1],m.dec)}%.`:'';
+    return `<div class="row${m.sub?' sub':''}"><div><div class="m-name">${m.t}</div><div class="m-dir">${m.h}</div></div>
+     <div class="bars" role="img" aria-label="${m.t}: Domustec ${es(a,m.dec)}%, ${compLabel(c,y)} ${nd?'sin dato':es(b,m.dec)+'%'}">
+      <div class="bl" title="Domustec ${y}: ${es(a,m.dec)}%"><div class="tr"><span class="fill" style="width:${(a/mx*100).toFixed(2)}%;background:var(--dom)"></span></div><span class="val">${es(a,m.dec)}%</span></div>
+      ${nd?`<div class="bl"><div class="tr"></div><span class="val">—</span></div>`:`<div class="bl" title="${compLabel(c,y)}: ${es(b,m.dec)}%"><div class="tr"><span class="fill" style="width:${(b/mx*100).toFixed(2)}%;background:var(--comp)"></span></div><span class="val">${es(b,m.dec)}%</span></div>`}
+     </div>
+     <div class="gapcell"><span class="pill ${cls}">${lab}</span>${nd?'':`<span class="gapn">${g>=0?'+':'−'}${es(Math.abs(g),m.dec)} pts</span>`}</div>
+     <p class="note">${note}${q}</p></div>`}).join('');
+  const cols=['sector','media','ins','ser','rap'];
+  const on=x=>x===c?' class="on"':'';
+  const head2=`<thead><tr><th scope="col" style="text-align:left">Indicador</th><th scope="col" class="dcol">Domustec ${y}</th>${cols.map(x=>`<th scope="col"${on(x)}>${x==='sector'?'Sector (mediana)':NAMES[x]}</th>`).join('')}</tr></thead>`;
+  const ctxrow=(t,fd,f)=>`<tr><th scope="row">${t}</th><td class="dcol">${fd}</td>${cols.map(x=>`<td${on(x)}>${f(x)}</td>`).join('')}</tr>`;
+  const rows=[
+   ctxrow('Año de los datos',y,x=>x==='sector'?'2024':x==='media'?'mixto':yr(x,y)),
+   ctxrow('Ingresos',es(dom.rev/1e6,2)+' M€',x=>x==='sector'?'<2 M€':es(val(x,'rev',y)/1e6,2)+' M€'),
+   ctxrow('Empleados','—',x=>(x==='sector'||x==='media')?'—':INFO[x].emp[yr(x,y)]),
+   ...M.map(m=>ctxrow(m.sub?'<span class="tsub">'+m.t+'</span>':m.t,es(dom[m.k],m.dec)+'%',x=>{const v=val(x,m.k,y);return (v===null?'—':es(v,m.dec)+'%')+mark(m,x,y)}))
+  ].join('');
+  document.getElementById('tbl').innerHTML=head2+`<tbody>${rows}</tbody>`;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const id=b.id;if(b.dataset.y)st.y=b.dataset.y;if(b.dataset.c)st.c=b.dataset.c;render();document.getElementById(id).focus()});
+render();
+</script>
+
+</body>
+</html>
